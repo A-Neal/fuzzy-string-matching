@@ -1,4 +1,3 @@
-#include <stddef.h>
 
 #ifndef FUZZYMATCHING_H
 #define FUZZYMATCHING_H
