@@ -1,8 +1,8 @@
 #include <stddef.h>
 #include <stdio.h>
 
-// Maximum size of comparison
-#define CMP_B_SIZE 512
+// Size of fuzzymatch() comparison buffers
+#define CMP_B_SIZE 1024
 
 typedef enum {
 	NEEDLE,
@@ -78,39 +78,28 @@ int fuzzycmp(char *str1, char *str2) {
 			} else scoreswitch = 0;
 		}
 	}
-	printf("Unweighted score: %d\n", score);			//debug
 	score = (float)score * (float)slen / (float)llen / (float)llen * 100;
 	return score;
 }
 
 char *fuzzymatch(char *needle, char *haystack, int threshold) {
-	/*
-	int nlen = dstrlen(needle, '\0');
-	int hlen = dstrlen(haystack, '\n');
-	if(!nlen || !hlen) return NULL;
-	int iter = nlen;
-	n_or_h bigger = HAYSTACK;
-	size_t nbufsize = 0;
-	size_t hbufsize = 0;
-	char nbuf[CMP_B_SIZE*2] = { '\0' };
-	char hbuf[CMP_B_SIZE*2] = { '\0' };
-	char *copy_once = hbuf;
-	char *copy_once_src = haystack;
-	char *copy_more = nbuf;
-	char *copy_more_src = needle;
-	if(nlen >= hlen) {
-		iter = hlen;
-		bigger = NEEDLE;
-		char *copy_once = nbuf;
-		char *copy_once_src = needle;
-		char *copy_more = hbuf;
-		char *copy_more_src = haystack;
+	int score = 0;
+	char nbuf[CMP_B_SIZE] = {'\0'};
+	char hbuf[CMP_B_SIZE] = {'\0'};
+	dstrncat(nbuf, needle, CMP_B_SIZE-1, '\n');
+	to_lower(nbuf);
+
+	int counter = 0;
+	while(1) {
+		dstrncat(hbuf, haystack, CMP_B_SIZE-1, '\n');
+		to_lower(hbuf);
+		score = fuzzycmp(nbuf, hbuf);
+		printf("fuzzymatch():\n  needle: %s\n  haystack: %s\n  score: %d\n",
+				&nbuf[0], &hbuf[0], score);
+		if(haystack[dstrlen(haystack, '\n')] == '\0') break;
+		haystack = &haystack[dstrlen(haystack, '\n') + 1];
+		if(counter++ >= 100) break;
 	}
-	int copy_times;
-	if(bigger == NEEDLE) {
-		copy_times = nlen / hlen;
-	} else copy_times = hlen / nlen;
-	*/
 
 	return NULL;
 }
