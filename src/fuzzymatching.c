@@ -5,6 +5,9 @@
 // Size of fuzzymatch() comparison buffers
 #define CMP_B_SIZE 1024
 
+// Starting size of fuzzymatch() return string
+#define OUTSIZE 32
+
 typedef enum {
 	NEEDLE,
 	HAYSTACK
@@ -45,10 +48,15 @@ static void dstrncat(char *dst, char *src, size_t size, char delim) {
 	for(size_t i=0; i<size-1; i++) {
 		if(src[i] == delim || src[i] == '\0') {
 			dst_offset[i] = '\0';
-			break;
+			return;
 		}
-		if(src[i] != '\r') dst_offset[i] = src[i];
+		if(src[i] == '\r') {
+			dst_offset -= 1;
+			continue;
+		}
+		dst_offset[i] = src[i];
 	}
+	dst_offset[size] = '\0';
 	return;
 }
 
@@ -127,7 +135,7 @@ int fuzzycmp(char *str1, char *str2) {
 }
 
 char *fuzzymatch(char *needle, char *haystack, int threshold) {
-	fuzzylist *results = NULL; //calloc(1, sizeof(fuzzylist));
+	fuzzylist *results = NULL;
 	int score = 0;
 	char nbuf[CMP_B_SIZE] = {'\0'};
 	char hbuf[CMP_B_SIZE] = {'\0'};
@@ -139,26 +147,6 @@ char *fuzzymatch(char *needle, char *haystack, int threshold) {
 		dstrncat(hbuf, haystack, CMP_B_SIZE-1, '\n');
 		to_lower(hbuf);
 		score = fuzzycmp(nbuf, hbuf);
-		//printf("fuzzymatch():\n  needle  : %s\n  haystack: %s\n  score   : %d\n",
-				//&nbuf[0], &hbuf[0], score);
-
-		/*
-		if(!results && score >= threshold) {
-			results = malloc(sizeof(fuzzylist));
-			results->result = malloc((dstrlen(haystack, '\n')*sizeof(char))+1);
-			dstrncat(results->result, haystack, dstrlen(haystack, '\n'), '\n');
-			results->score = score;
-			results->next = NULL;
-			printf("add first node\n");		//debug
-		} else if(score >= threshold) {
-			fuzzylist *current = results;
-			while(current->next && current->next->score > score) {
-				current = current->next;
-			}
-			addnode(current->next, haystack, score);
-			printf("addnode\n");			//debug
-		}
-		*/
 
 		if(score >= threshold) {
 			fuzzylist **current = &results;
@@ -185,15 +173,42 @@ char *fuzzymatch(char *needle, char *haystack, int threshold) {
 		haystack = &haystack[dstrlen(haystack, '\n') + 1];
 	}
 
+	if(!results) return NULL;
+
+	size_t outsize = OUTSIZE;
+	size_t outlen = 0;
+	int rlen;
+	char *out = calloc(outsize, sizeof(char));
+	char *errck;
 	fuzzylist *cur = results;
 	while(cur) {
-		//printf("needle  : %s\nhaystack: %s\nscore   : %d\n\n",
-				//&nbuf[0], cur->result, cur->score);
-		printf("%s          %d\n", cur->result, cur->score);
+		//printf("%s          %d\n", cur->result, cur->score);	//debug
+
+		rlen = dstrlen(cur->result, '\0');
+		if(outsize <= outlen+rlen+2) {
+			do {
+				outsize += OUTSIZE;
+			} while(outsize <= outlen+rlen+2);
+			errck = realloc(out, outsize);
+			if(!errck) {
+				fprintf(stderr, "realloc() failed!\n");
+				exit(1);
+			}
+			out = errck;
+			// Initialize realloc()'d memory
+			for(int i = outlen; i<outsize; i++) {
+				out[i] = '\0';
+			}
+		}
+		dstrncat(out, cur->result, rlen+1, '\0');
+		//out[outlen+rlen] = '\n';
+		dstrncat(out, "\n", 2, '\0');
+		outlen += rlen+2;
+
 		cur = cur->next;
 	}
 
 	freelist(results);
-	return NULL;
+	return out;
 }
 
