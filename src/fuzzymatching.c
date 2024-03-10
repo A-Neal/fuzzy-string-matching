@@ -116,8 +116,11 @@ int fuzzycmp(char *str1, char *str2) {
 	}
 	int iter = llen-slen+1;
 	for(int i=0; i<iter; i++) {
+		// scoreswitch is for suppressing single-letter matches, while
+		// still correctly counting 2+ letter matches
 		int scoreswitch = 0;
 		for(int j=0; j<slen; j++) {
+			// Here, the modulo operator is used to wrap the search
 			if(!(shorter[j] ^ longer[(i+j)%llen])) {
 				if(scoreswitch > 0) {
 					if(scoreswitch == 1) {
@@ -130,13 +133,23 @@ int fuzzycmp(char *str1, char *str2) {
 	}
 	//printf("fuzzycmp():\n  unweighted score: %d\n  slen: %d\n  llen: %d\n",
 			//score, slen, llen);
-	score = (float)score * (float)slen / (float)llen / (float)llen * 100;
+	//score = (float)score * (float)slen / (float)llen / (float)llen * 100;
+	// "c" for "comparison"
+	int c_longer = score;
+	int c_shorter = slen;
+	if(slen > score) {
+		c_longer = slen;
+		c_shorter = score;
+	}
+	score = (1 / ((float)c_longer / (float)c_shorter)) * (1 / ((float)llen / (float)slen)) * 100;
 	return score;
 }
 
-char *fuzzymatch(char *needle, char *haystack, int threshold) {
+char *fuzzymatch(char *needle, char *haystack, int threshold, int clamp) {
 	fuzzylist *results = NULL;
 	int score = 0;
+	if(clamp == 0) clamp = 1000;
+	int count = 0;
 	char nbuf[CMP_B_SIZE] = {'\0'};
 	char hbuf[CMP_B_SIZE] = {'\0'};
 	dstrncat(nbuf, needle, CMP_B_SIZE-1, '\n');
@@ -206,6 +219,9 @@ char *fuzzymatch(char *needle, char *haystack, int threshold) {
 		outlen += rlen+2;
 
 		cur = cur->next;
+
+		count++;
+		if(count > clamp) break;
 	}
 
 	freelist(results);

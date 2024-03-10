@@ -23,7 +23,10 @@ float fuzzycmp(char *str1, char *str2);
 // match (high enough score) will take the whole line as a match.
 //
 // This function is case insensitive.
-char *fuzzymatch(char *needle, char *haystack, int threshold);
+//
+// The clamp paramter is a later addition. It is the number of results to
+// output before stopping. Set to 0 to disable. Hard limit at 1000.
+char *fuzzymatch(char *needle, char *haystack, int threshold, int clamp);
 
 #endif
 
