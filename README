@@ -1,0 +1,6 @@
+This is a simple C source library for fuzzy string comparison. There isn't much
+to say that isn't documented in the comments of the source files.
+
+Read the header file for a brief overview of each function, and the .c file
+for more specifics on the implementation, both in comments, and pure source
+code.

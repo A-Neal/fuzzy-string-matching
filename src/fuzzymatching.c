@@ -99,6 +99,7 @@ static void to_lower(char *str) {
 	return;
 }
 
+// This function is described in the header file
 int fuzzycmp(char *str1, char *str2) {
 	int score = 0;
 	int len1 = dstrlen(str1, '\n');
@@ -131,9 +132,17 @@ int fuzzycmp(char *str1, char *str2) {
 			} else scoreswitch = 0;
 		}
 	}
+	// This call to printf is for debugging scoring
 	//printf("fuzzycmp():\n  unweighted score: %d\n  slen: %d\n  llen: %d\n",
 			//score, slen, llen);
-	//score = (float)score * (float)slen / (float)llen / (float)llen * 100;
+	
+	// This final section calculates the weight of the score to be returned.
+	// It is the product of the ratio between, first, the unweighted
+	// score and the length of the shorter input string, and second, the
+	// ratio between the two input strings. The closer either ratio is to
+	// 1, the better the score. 1 and 1 is a perfect score. This is then
+	// multiplied by 100 to normalize the results to a range of 0-100.
+	//
 	// "c" for "comparison"
 	int c_longer = score;
 	int c_shorter = slen;
@@ -141,10 +150,11 @@ int fuzzycmp(char *str1, char *str2) {
 		c_longer = slen;
 		c_shorter = score;
 	}
-	score = (1 / ((float)c_longer / (float)c_shorter)) * (1 / ((float)llen / (float)slen)) * 100;
+	score = ((float)c_shorter / (float)c_longer) * ((float)slen / (float)llen) * 100;
 	return score;
 }
 
+// This function is described in the header file
 char *fuzzymatch(char *needle, char *haystack, int threshold, int clamp) {
 	fuzzylist *results = NULL;
 	int score = 0;
@@ -182,12 +192,17 @@ char *fuzzymatch(char *needle, char *haystack, int threshold, int clamp) {
 			addnode(node_ptr, haystack, score);
 		}
 
+		// This section handles advancing the pointer to the beginning
+		// of the haystack string to the next point after the delimiter,
+		// or breaking the loop if the end is reached.
 		if(haystack[dstrlen(haystack, '\n')] == '\0') break;
 		haystack = &haystack[dstrlen(haystack, '\n') + 1];
 	}
 
 	if(!results) return NULL;
 
+	// This section handles the generation of the output string of matches
+	// from the linked list built above.
 	size_t outsize = OUTSIZE;
 	size_t outlen = 0;
 	int rlen;

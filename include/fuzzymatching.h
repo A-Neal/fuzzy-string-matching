@@ -4,13 +4,10 @@
 
 // Takes pointers to two strings to be compared, and returns an integer "score"
 // representing how similar the two strings are. The score will be normalized
-// to a nominal 0-100. 0 is no similarity, and 100+ is high similarity. A Full
-// match is never truly determined, and scores greater than 100 can be returned
-// from regularly repeating strings. This will be left as such, as it would add
-// complexity and CPU time to each comparison, and it matters very little in
-// the real world where repeating strings are uncommon. Not to mention that
-// return values > 100 are still interpreted as high similarity. Not perfect
-// but good enough.
+// to 0-100. 0 is no similarity, and 100 is high similarity. A score of 100
+// can only be returned if the lengths of the input strings are equal, AND the
+// score is equal to that length. It isn't guaranteed that a score of 100
+// constitutes an exact match, but it should be the case most of the time.
 float fuzzycmp(char *str1, char *str2);
 
 // Takes a pointer to a string to search for, the string to search for it in,
