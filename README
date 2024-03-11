@@ -4,3 +4,11 @@ to say that isn't documented in the comments of the source files.
 Read the header file for a brief overview of each function, and the .c file
 for more specifics on the implementation, both in comments, and pure source
 code.
+
+The "startIDE.sh" file is not in the .gitignore file because I like to transfer
+it to any machine I'm working on in the state I last updated it to.
+
+The Makefile was left by mistake, while the test source file it refers to was
+.gitignored. I will probably update this in the future to include these test
+files in a demo directory.
+
