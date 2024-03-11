@@ -1,4 +1,4 @@
-all: testrun
+all: demo
 
-testrun: src/testmain.c src/fuzzymatching.c include/fuzzymatching.h
-	gcc -Iinclude/ -Wall src/testmain.c src/fuzzymatching.c -o $@
+demo: src/demo.c src/fuzzymatching.c include/fuzzymatching.h
+	gcc -Iinclude/ -Wall src/demo.c src/fuzzymatching.c -o demo/$@

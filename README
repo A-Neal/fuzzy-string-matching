@@ -8,7 +8,7 @@ code.
 The "startIDE.sh" file is not in the .gitignore file because I like to transfer
 it to any machine I'm working on in the state I last updated it to.
 
-The Makefile was left by mistake, while the test source file it refers to was
-.gitignored. I will probably update this in the future to include these test
-files in a demo directory.
+The Makefile builds a demo program. It uses whichever included demo text file
+is given in the code. Set the file you want, build, and test. Run it from
+inside the demo directory.
 

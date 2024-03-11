@@ -10,7 +10,7 @@ uxterm &
 # Files to open in Vim
 files=".gitignore \
 	Makefile \
-	src/testmain.c \
+	src/demo.c \
 	src/fuzzymatching.c \
 	include/fuzzymatching.h
 	"
